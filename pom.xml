@@ -29,6 +29,10 @@
     </properties>
 
     <modules>
+        <module>nifi-sample-api</module>
+        <module>nifi-sample-api-nar</module>
+        <module>nifi-sample-services</module>
+        <module>nifi-sample-services-nar</module>
         <module>nifi-sample-processors</module>
         <module>nifi-sample-nar</module>
     </modules>
@@ -133,6 +137,12 @@
                         <target>1.8</target>
                         <encoding>UTF-8</encoding>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.nifi</groupId>
+                    <artifactId>nifi-nar-maven-plugin</artifactId>
+                    <extensions>true</extensions>
+                    <version>1.2.0</version>
                 </plugin>
             </plugins>
         </pluginManagement>
