@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @InputRequirement(InputRequirement.Requirement.INPUT_REQUIRED)
@@ -103,7 +104,14 @@ public class ServiceDemonstrationProcessor extends AbstractProcessor {
         }
 
         try {
-
+            Optional result = lookupService.lookup(input.getAttributes());
+            if (result.isPresent()) {
+                input = session.write(input, out -> out.write(result.get().toString().getBytes()));
+                session.transfer(input, REL_SUCCESS);
+                session.getProvenanceReporter().modifyContent(input);
+            } else {
+                session.transfer(input, REL_FAILURE);
+            }
         } catch (Exception ex) {
             getLogger().error("Error processing something.", ex);
             session.transfer(input, REL_FAILURE);
