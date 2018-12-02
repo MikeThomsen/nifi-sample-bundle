@@ -27,8 +27,15 @@ import org.apache.nifi.lookup.LookupService;
 import org.apache.nifi.processor.AbstractProcessor;
 import org.apache.nifi.processor.ProcessContext;
 import org.apache.nifi.processor.ProcessSession;
+import org.apache.nifi.processor.Relationship;
 import org.apache.nifi.processor.exception.ProcessException;
 import org.apache.nifi.sample.SampleControllerService;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @InputRequirement(InputRequirement.Requirement.INPUT_REQUIRED)
 public class ServiceDemonstrationProcessor extends AbstractProcessor {
@@ -48,6 +55,33 @@ public class ServiceDemonstrationProcessor extends AbstractProcessor {
         .identifiesControllerService(SampleControllerService.class)
         .build();
 
+    public static final Relationship REL_FAILURE = new Relationship.Builder()
+        .name("failure")
+        .description("Failed flowfiles go here.")
+        .build();
+    public static final Relationship REL_SUCCESS = new Relationship.Builder()
+        .name("success")
+        .description("Successful flowfiles go here.")
+        .build();
+
+    private static final List<PropertyDescriptor> PROPERTY_DESCRIPTORS = Collections.unmodifiableList(Arrays.asList(
+        LOOKUP_SERVICE, SERVICE
+    ));
+
+    private static final Set<Relationship> RELATIONSHIPS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+        REL_FAILURE, REL_SUCCESS
+    )));
+
+    @Override
+    public List<PropertyDescriptor> getSupportedPropertyDescriptors() {
+        return PROPERTY_DESCRIPTORS;
+    }
+
+    @Override
+    public Set<Relationship> getRelationships() {
+        return RELATIONSHIPS;
+    }
+
     private volatile LookupService lookupService;
     private volatile SampleControllerService sampleControllerService;
 
@@ -62,6 +96,17 @@ public class ServiceDemonstrationProcessor extends AbstractProcessor {
         FlowFile input = session.get();
         if (input == null) {
             return;
+        }
+
+        for (int index = 0; index < 20; index++) {
+            sampleControllerService.doSomething(); //Just sends log statements.
+        }
+
+        try {
+
+        } catch (Exception ex) {
+            getLogger().error("Error processing something.", ex);
+            session.transfer(input, REL_FAILURE);
         }
     }
 }
