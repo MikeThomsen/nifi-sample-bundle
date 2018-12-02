@@ -16,3 +16,4 @@
 # limitations under the License.
 
 org.apache.nifi.processor.sample.SampleProcessor
+org.apache.nifi.processor.sample.ServiceDemonstrationProcessor
